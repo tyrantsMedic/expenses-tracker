@@ -11,8 +11,7 @@
     />
     <TransactionForm
       @addTransaction="onAddTransaction"
-      @colorChangedToRed="onColorChangedToRed"
-      @notRed="onColorChangedToRed"
+      @isTextChangedToRed="onIsTextChangedToRed"
     />
   </div>
 </template>
@@ -86,8 +85,8 @@ export default {
       await localStorage.setItem('transactions', [''])
       this.transactions = []
     },
-    onColorChangedToRed(isColorChanged) {
-      this.colorChangedToRed = isColorChanged
+    onIsTextChangedToRed(isTextChangedToRed) {
+      this.colorChangedToRed = isTextChangedToRed
     }
   }
 }

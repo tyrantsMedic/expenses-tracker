@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  emits: ['addTransaction', 'colorChangedToRed', 'notRed'],
+  emits: ['addTransaction', 'isTextChangedToRed'],
   data() {
     return {
       form: {
@@ -24,8 +24,8 @@ export default {
   },
   watch: {
     'form.text'(val) {
-      if (val == 'red') this.$emit('colorChangedToRed', true)
-      else this.$emit('notRed', false)
+      if (val == 'red') this.$emit('isTextChangedToRed', true)
+      else this.$emit('isTextChangedToRed', false)
     }
   },
   methods: {
