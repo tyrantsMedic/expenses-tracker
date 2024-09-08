@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config({ path: '../.env' })
 const app = express()
 const port = process.env.PORT || 3000
-const dbName = 'expenses_tracker'
+const dbName = process.env.DB_DATABASE
 const tableName = 'transactions'
 const exists = await checkDatabaseExists(dbName)
 
@@ -15,24 +15,21 @@ if (!exists) {
   await createDatabase(dbName)
 }
 
-const client = new pg.Client({
-  user: 'postgres',
-  host: 'localhost',
-  password: 'lhu@5934',
-  port: 5432,
+const pool = new pg.Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
   database: dbName
 })
 
-await client.connect()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
 app.use(bodyParser.json())
-app.set(port, process.env.PORT || 3000)
-console.log(process.env.PORT)
 
 app.get('/api/getAllTransactions', async (req, res) => {
   try {
-    const result = await client.query('SELECT * FROM transactions')
+    const result = await pool.query('SELECT * FROM transactions')
     res.status(200).json(result.rows)
   } catch (error) {
     console.error('Error fetching transactions:', error)
@@ -47,7 +44,7 @@ app.post('/api/addTransaction', async (req, res) => {
     if (!amount || !text) {
       return res.status(400).json({ error: 'Amount and description are required' })
     }
-    const result = await client.query(
+    const result = await pool.query(
       'INSERT INTO transactions (amount, text) VALUES ($1, $2) RETURNING *',
       [amount, text]
     )
@@ -60,7 +57,7 @@ app.post('/api/addTransaction', async (req, res) => {
 
 app.delete('/api/transaction', async (req, res) => {
   try {
-    await client.query('DELETE FROM transactions WHERE id = $1', [req.body.id])
+    await pool.query('DELETE FROM transactions WHERE id = $1', [req.body.id])
     res.status(201).json('Transaction deleted Successfully!')
   } catch (error) {
     console.error('Error inserting data:', error)
@@ -70,7 +67,7 @@ app.delete('/api/transaction', async (req, res) => {
 
 app.delete('/api/all', async (req, res) => {
   try {
-    await client.query('DELETE FROM transactions')
+    await pool.query('DELETE FROM transactions')
     res.status(201).json('All transactions deleted Successfully!')
   } catch (error) {
     console.error('Error inserting data:', error)
@@ -84,10 +81,10 @@ app.listen(port, () => {
 
 function createClient(dbName = 'postgres') {
   return new pg.Client({
-    user: 'postgres',
-    host: 'localhost',
-    password: 'lhu@5934',
-    port: 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
     database: dbName
   })
 }

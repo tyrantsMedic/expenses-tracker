@@ -24,7 +24,6 @@
       </li>
     </ul>
   </div>
-  <div v-else>No History Found</div>
 </template>
 
 <script>
