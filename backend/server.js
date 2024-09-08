@@ -2,9 +2,11 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import pg from 'pg'
 import cors from 'cors'
+import dotenv from 'dotenv'
 
+dotenv.config({ path: '../.env' })
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 const dbName = 'expenses_tracker'
 const tableName = 'transactions'
 const exists = await checkDatabaseExists(dbName)
@@ -25,6 +27,8 @@ await client.connect()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
 app.use(bodyParser.json())
+app.set(port, process.env.PORT || 3000)
+console.log(process.env.PORT)
 
 app.get('/api/getAllTransactions', async (req, res) => {
   try {

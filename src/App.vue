@@ -21,7 +21,7 @@ import TotalBalance from './components/TotalBalance.vue'
 import IncomeExpense from './components/IncomeExpense.vue'
 import ExpenseHistory from './components/ExpenseHistory.vue'
 import TransactionForm from './components/TransactionForm.vue'
-import axios from 'axios'
+import apiService from './utils/ApiService'
 
 export default {
   components: {
@@ -65,39 +65,34 @@ export default {
   methods: {
     async onAddTransaction(data) {
       try {
-        await axios.post('http://localhost:3000/api/addTransaction', data)
+        await apiService.post('/addTransaction', data)
         await this.refresh()
       } catch (e) {
         console.error(e)
       }
-      // localStorage.setItem('transactions', JSON.stringify(this.transactions))
     },
     async onDeleteTransaction(id) {
       try {
-        await axios.delete('http://localhost:3000/api/transaction', { data: { id: id } })
+        await apiService.delete('/transaction', id)
         await this.refresh()
       } catch (e) {
         console.error(e)
       }
-      // this.transactions = this.transactions.filter((transaction) => transaction.id != id)
-      // localStorage.setItem('transactions', JSON.stringify(this.transactions))
     },
     async onResetTransactions() {
       try {
-        await axios.delete('http://localhost:3000/api/all')
+        await apiService.delete('/all')
         await this.refresh()
       } catch (e) {
         console.error(e)
       }
-      // await localStorage.setItem('transactions', [''])
-      // this.transactions = []
     },
     onIsTextChangedToRed(isTextChangedToRed) {
       this.colorChangedToRed = isTextChangedToRed
     },
     async refresh() {
       try {
-        const response = await axios.get('http://localhost:3000/api/getAllTransactions')
+        const response = await apiService.get('/getAllTransactions')
         this.transactions = response.data
       } catch (error) {
         console.error('Error fetching transactions:', error)
