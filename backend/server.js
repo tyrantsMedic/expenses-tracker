@@ -8,7 +8,6 @@ dotenv.config({ path: '../.env' })
 const app = express()
 const port = process.env.PORT || 3000
 const dbName = process.env.DB_DATABASE
-const tableName = 'transactions'
 const exists = await checkDatabaseExists(dbName)
 
 if (!exists) {
@@ -102,7 +101,7 @@ async function checkDatabaseExists(dbName) {
       await client.end()
       const secondClient = createClient(dbName)
       await secondClient.connect()
-      await checkTableExists(tableName, secondClient)
+      await checkTableExists(secondClient)
       return true
     } else {
       console.log(`Database "${dbName}" does not exist.`)
@@ -121,34 +120,13 @@ async function createDatabase(dbName) {
     await client.connect()
     await client.query(`CREATE DATABASE ${dbName}`)
     console.log(`Database "${dbName}" created successfully.`)
-    await checkTableExists(tableName, client)
+    await checkDatabaseExists(dbName)
   } catch (error) {
     console.error('Error creating database:', error)
   }
 }
 
-async function checkTableExists(tableName, client) {
-  try {
-    const res = await client.query(
-      `SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = $1`,
-      [tableName]
-    )
-
-    if (res.rowCount > 0) {
-      console.log(`Table "${tableName}" exists.`)
-      return true
-    } else {
-      console.log(`Table "${tableName}" does not exist.`)
-      createTransactionTable(client)
-      return false
-    }
-  } catch (error) {
-    console.error('Error checking table existence:', error)
-    return false
-  }
-}
-
-async function createTransactionTable(client) {
+async function checkTableExists(client) {
   try {
     await client.query(
       `CREATE TABLE IF NOT EXISTS transactions(id SERIAL PRIMARY KEY, text TEXT, amount VARCHAR(10))`
